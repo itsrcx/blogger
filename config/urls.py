@@ -2,14 +2,14 @@ from django.contrib import admin
 from django.urls import path , include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.http import HttpResponse
+from django.shortcuts import render
 
 # function for aws health check as root has no webpage to serve
-def health_check(request):
-    return HttpResponse("OK")
+def hellow(request):
+    return render(request, 'hello.html')
 
 urlpatterns = [
-    path('', health_check),
+    path('', hellow),
     path('admin/', admin.site.urls),
     path('rest-auth/', include('rest_framework.urls')),
     path('api/blog/', include('blog.urls')),
