@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 # function for aws health check as root has no webpage to serve
 def health_check(request):
-    return HttpResponse("OK", status=200)
+    return HttpResponse("OK")
 
 urlpatterns = [
     path('', health_check),
