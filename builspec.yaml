@@ -2,13 +2,18 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "installation cmd on system"
+      - pip install -r requirements.txt
   pre_build:
     commands:
-      - echo "pre-build stage in code deploy"
+      - python manage.py test
   build:
     commands:
-      - grep -Fq "Raman" index.html
+      - zip -r django-app.zip .
   post_build:
     commands:
       - echo "Build complete"
+
+artifacts:
+  files:
+    - django-app.zip
+  discard-paths: yes
