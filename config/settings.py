@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-sz*6#)t&*nn5#(u^y2$w$y-=gc8r1csdz=b8r#lx6w@=@)o!c6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['blogger-api-dev.ap-south-1.elasticbeanstalk.com','172.31.15.58']
+ALLOWED_HOSTS = ['*']
 
 if DEBUG:
     ALLOWED_HOSTS.append("localhost")
