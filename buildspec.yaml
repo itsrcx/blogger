@@ -1,19 +1,30 @@
 version: 0.2
+
 phases:
   install:
     commands:
       - pip install -r requirements.txt
+      - pip install awsebcli  # Install Elastic Beanstalk CLI if needed for deployment steps
+
   pre_build:
     commands:
-      - python manage.py test
+      - echo "Running pre-build scripts..."
+
   build:
     commands:
-      - zip -r django-app.zip .
+      - echo "Running build scripts..."
+      - python manage.py collectstatic --noinput  # Collect static files
+      - python manage.py migrate  # Apply migrations
+
   post_build:
     commands:
-      - echo "Build complete"
+      - echo "Running post-build scripts..."
 
 artifacts:
   files:
-    - django-app.zip
+    - "**/*"  # Include all files required for Elastic Beanstalk deployment
   discard-paths: yes
+
+cache:
+  paths:
+    - "vendor/bundle/**/*"
