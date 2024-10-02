@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 
     # 3rd Party
     'rest_framework',
+    'ebhealthcheck.apps.EBHealthCheckConfig',
 
     # local apps
     'blog',
