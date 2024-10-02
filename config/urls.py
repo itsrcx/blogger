@@ -9,7 +9,7 @@ def health_check(request):
     return HttpResponse("OK", status=200)
 
 urlpatterns = [
-    path('health/', health_check),
+    path('', health_check),
     path('admin/', admin.site.urls),
     path('rest-auth/', include('rest_framework.urls')),
     path('api/blog/', include('blog.urls')),
