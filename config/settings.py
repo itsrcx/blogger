@@ -16,10 +16,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['blogger-dev.ap-south-1.elasticbeanstalk.com']
 
-if DEBUG == True:
-    ALLOWED_HOSTS += "localhost"
+if DEBUG:
+    ALLOWED_HOSTS.append("localhost")
 
-
+print(ALLOWED_HOSTS)
 
 # Application definition
 
