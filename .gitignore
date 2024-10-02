@@ -1,3 +1,8 @@
 .venv
 __pycache__
 staticfiles
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
