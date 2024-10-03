@@ -16,10 +16,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-if DEBUG:
-    ALLOWED_HOSTS.append("localhost")
-
-
 # Application definition
 
 INSTALLED_APPS = [
