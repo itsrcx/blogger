@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 # function for aws health check as root has no webpage to serve
 def hellow(request):
-    return HttpResponse("OK")
+    return HttpResponse("<h1>Welcome to blogger rest APIs use /swagger/ in URL to get API details.</h1>",  content_type="text/html")
 
 urlpatterns = [
     path('', hellow),
