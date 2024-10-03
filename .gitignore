@@ -1,6 +1,7 @@
 .venv
 __pycache__
 staticfiles
+eb-cf.yaml
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

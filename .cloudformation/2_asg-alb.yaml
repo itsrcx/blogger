@@ -1,0 +1,160 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  Create an Auto Scaling Group with an existing subnet, a Launch Template,
+  and attach an Application Load Balancer (ALB)
+
+Resources:
+
+  # Security Group for EC2 Instances
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP access
+      VpcId: !ImportValue VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+
+  # Security Group for ALB
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP access to ALB
+      VpcId: !ImportValue VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+  # ALB
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: demoALB
+      Subnets:
+        - !ImportValue PublicSubnet1Id
+        - !ImportValue PublicSubnet2Id
+      SecurityGroups:
+        - !Ref LoadBalancerSecurityGroup
+      Scheme: internet-facing
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '60'
+
+  # ALB Target Group
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: demoTargetGroup
+      VpcId: !ImportValue VPCId
+      Protocol: HTTP
+      Port: 80
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 100
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+      TargetType: instance
+
+  # ALB Listener
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  # Launch Template for EC2 Instances
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: MyLaunchTemplate
+      LaunchTemplateData:
+        InstanceType: !Ref InstanceType
+        KeyName: !Ref KeyPair
+        SecurityGroupIds:
+          - !Ref InstanceSecurityGroup
+        UserData: !Base64
+          Fn::Sub: |
+            #!/bin/bash
+            apt update -y
+            apt install ruby-full
+            apt install wget
+
+            wget https://aws-codedeploy-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/latest/install
+            chmod +x ./install
+            ./install auto
+
+            apt install -y nginx
+            systemctl start nginx
+            systemctl enable nginx
+            
+        ImageId: !Ref AmiId # Replace with your region-specific AMI
+
+  # Auto Scaling Group
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !ImportValue PrivateSubnet1Id
+        - !ImportValue PrivateSubnet2Id
+      LaunchTemplate:
+        LaunchTemplateId: !Ref LaunchTemplate
+        Version: !GetAtt LaunchTemplate.LatestVersionNumber
+      MinSize: '1'
+      MaxSize: '2'
+      DesiredCapacity: '1'
+      TargetGroupARNs:
+        - !Ref TargetGroup
+  
+  # Auto Scaling Policies (Target Tracking for CPU Utilization)
+  ScalingPolicy:
+    Type: 'AWS::AutoScaling::ScalingPolicy'
+    Properties:
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      PolicyType: TargetTrackingScaling
+      TargetTrackingConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ASGAverageCPUUtilization
+        TargetValue: 70.0
+
+# Outputs
+Outputs:
+  LoadBalancerDNSName:
+    Description: The DNS name of the ALB
+    Value: !GetAtt LoadBalancer.DNSName
+
+# Parameters for InstanceType and KeyPair
+Parameters:
+
+  AmiId:
+    Description: "Enter the AMI ID for your region. That is subborted by CodeDeploy agent." 
+    Type: String
+    Default: ami-09b0a86a2c84101e1
+
+  InstanceType:
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+
+  KeyPair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The EC2 Key Pair to allow SSH access to the instances
