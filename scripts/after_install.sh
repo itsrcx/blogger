@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Navigate to the application directory
-cd /home/ubuntu/app
+cd /home/ubuntu/django_app
 
 # activating env
-source .venv/bin/activate
+sudo source .venv/bin/activate
 
 if pgrep gunicorn > /dev/null; then
   echo "Soft Reloading Gunicorn..."
@@ -29,4 +29,4 @@ fi
 # Or for testing:
 # python3 manage.py runserver 0.0.0.0:8000 &
 
-nginx -s reload
+sudo nginx -s reload
