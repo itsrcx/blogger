@@ -14,8 +14,9 @@ phases:
   build:
     commands:
       - echo "Running build scripts..."
+      - python manage.py test
       - python manage.py collectstatic --noinput  # Collect static files for production
-      - python manage.py migrate  # Apply database migrations
+      - python manage.py migrate --noinput # Apply database migrations
 
   post_build:
     commands:
