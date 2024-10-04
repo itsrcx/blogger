@@ -12,7 +12,7 @@ hooks:
       runas: root
   BeforeInstall:
     - location: scripts/install_dependencies.sh
-    - location: scripts/app_dependecy_and_migrations.sh
+    - location: scripts/install_app_dependecy_and_db_migrations.sh
       timeout: 500
       runas: root
   AfterInstall:

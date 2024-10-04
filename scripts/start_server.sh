@@ -1,6 +1,4 @@
 #!/bin/bash
-systemctl start nginx
-systemctl enable nginx
+cd /home/ubuntu/blogger_app
 
-systemctl start gunicorn
-systemctl enable gunicorn
+gunicorn --workers 3 --bind 0.0.0.0:80 config.wsgi:application --daemon
