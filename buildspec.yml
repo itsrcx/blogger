@@ -25,7 +25,7 @@ phases:
 artifacts:
   files:
     - "**/*"  # Include all necessary files for deployment
-  discard-paths: yes
+  discard-paths: no
 
 cache:
   paths:
