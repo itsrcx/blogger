@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 cd /home/ubuntu/blogger_app
 
 python3 -m venv .venv
