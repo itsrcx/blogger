@@ -1,38 +1,25 @@
 version: 0.0
 os: linux
-files:
-  - source: /
-    destination: /home/ubuntu/www/project
 
-permissions:
-  - object: /home/ubuntu/www
-    pattern: "**"
-    owner: ubuntu
-    group: ubuntu
+files:
+  - source: ./
+    destination: /home/ubuntu/blogger_app
 
 hooks:
-  BeforeInstall:
-    - location: scripts/clean_instance.sh
+  ApplicationStop:
+    - location: scripts/stop_server.sh
       timeout: 300
+      runas: root
+  BeforeInstall:
+    - location: scripts/install_dependencies.sh
+    - location: scripts/app_dependecy_and_migrations.sh
+      timeout: 500
       runas: root
   AfterInstall:
-    - location: scripts/install_os_dependencies.sh
+    - location: scripts/change_permissions.sh
       timeout: 300
       runas: root
-    - location: scripts/install_python_dependencies.sh
-      timeout: 300
-      runas: ubuntu
-    - location: scripts/migrate.sh
-      timeout: 300
-      runas: ubuntu
-    - location: scripts/ngnix.sh
-      timeout: 300
-      runas: ubuntu
   ApplicationStart:
-    - location: scripts/start_application.sh
+    - location: scripts/start_server.sh
       timeout: 300
-      runas: ubuntu
-  ApplicationStop:
-    - location: scripts/stop_application.sh
-      timeout: 300
-      runas: ubuntu
+      runas: root
